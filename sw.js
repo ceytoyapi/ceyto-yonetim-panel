@@ -1,6 +1,6 @@
 // Ceyto Panel — hafif servis çalışanı. Sadece uygulama kabuğunu önbelleğe alır;
 // veri istekleri (Supabase) her zaman ağdan gider.
-const CACHE = "ceyto-shell-v2";
+const CACHE = "ceyto-shell-v3";
 self.addEventListener("install", (e) => { self.skipWaiting(); });
 self.addEventListener("activate", (e) => {
   e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))));
