@@ -29,6 +29,16 @@
       })();
     </script>
     <script src="./config.js"></script>
+    <script>
+      // Ayar yedeği: config.js bir kez yüklenince telefonda saklanır; ağ takılırsa yedekten devam edilir.
+      (function () {
+        try {
+          var c = window.CEYTO_CONFIG;
+          if (c && c.SUPABASE_URL && c.SUPABASE_URL.indexOf("BURAYA") < 0) localStorage.setItem("ceyto-config", JSON.stringify(c));
+          else { var s = localStorage.getItem("ceyto-config"); if (s) { window.CEYTO_CONFIG = JSON.parse(s); window.CEYTO_CONFIG_FROM_CACHE = true; } }
+        } catch (e) {}
+      })();
+    </script>
     <script type="module" crossorigin src="./app.js"></script>
     <link rel="stylesheet" crossorigin href="./app.css">
   </head>

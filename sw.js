@@ -1,6 +1,6 @@
 // Ceyto Panel — hafif servis çalışanı. Sadece uygulama kabuğunu önbelleğe alır;
 // veri istekleri (Supabase) her zaman ağdan gider.
-const CACHE = "ceyto-shell-v6";
+const CACHE = "ceyto-shell-v7";
 self.addEventListener("install", (e) => { self.skipWaiting(); });
 self.addEventListener("activate", (e) => {
   e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))));
@@ -9,7 +9,7 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET" || url.origin !== self.location.origin) return;
-  if (url.pathname.endsWith("/config.js")) return; // ayar dosyası hep taze
+  // config.js dahil her şey: önce ağ, ağ yoksa önbellek (ayar dosyası yüklenemezse panel açılmıyordu)
   e.respondWith(
     fetch(e.request)
       .then((res) => {
