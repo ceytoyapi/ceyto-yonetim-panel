@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#1e3a8a" />
+    <meta name="theme-color" content="#ffffff" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Ceyto Panel" />
     <link rel="icon" href="./logo-v2.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-icon-v3-180.png" />
@@ -15,16 +15,16 @@
     <link rel="manifest" href="./manifest.webmanifest?v=3" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <title>Ceyto Yapı Panel</title>
     <script>
       // Tema: ekran çizilmeden önce uygula (yanıp sönme olmasın)
       (function () {
         try {
-          var t = localStorage.getItem("ceyto-theme") || "system";
+          var t = localStorage.getItem("ceyto-theme") || "light";
           var dark = t === "dark" || (t === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
           document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
-          var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute("content", dark ? "#0b1220" : "#1e3a8a");
+          var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute("content", dark ? "#0b1420" : "#ffffff");
         } catch (e) {}
       })();
     </script>
@@ -39,10 +39,47 @@
         } catch (e) {}
       })();
     </script>
+    <style>
+      /* Açılış: amblem belirir, sonra yazı ve ince yükleme çizgisi. Uygulama yüklenince kaldırılır. */
+      #acilis { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #f5f7fa; transition: opacity 0.35s ease; }
+      html[data-theme="dark"] #acilis { background: #0b1420; }
+      #acilis img { display: block; height: 96px; width: auto; }
+      #acilis .a-logo { height: 40px; }
+      #acilis .a-koyu { display: none; } html[data-theme="dark"] #acilis .a-koyu { display: block; } html[data-theme="dark"] #acilis .a-acik { display: none; }
+      #acilis .a-bar { width: 180px; height: 4px; border-radius: 4px; background: #e1e6ed; overflow: hidden; }
+      html[data-theme="dark"] #acilis .a-bar { background: #1a2737; }
+      #acilis .a-bar i { display: block; width: 40%; height: 100%; border-radius: 4px; background: #1f4e8c; }
+      html[data-theme="dark"] #acilis .a-bar i { background: #7fb0f0; }
+      #acilis .a-txt { font: 600 14px/1 Manrope, system-ui, sans-serif; color: #5a6676; }
+      html[data-theme="dark"] #acilis .a-txt { color: #9dabbb; }
+      @keyframes acAmblem { 0% { opacity: 0; transform: scale(0.6) rotate(-8deg); } 55% { opacity: 1; transform: scale(1.06) rotate(0); } 100% { opacity: 1; transform: scale(1); } }
+      @keyframes acYazi { 0%, 35% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+      @keyframes acCizgi { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
+      #acilis .a-amblem { animation: acAmblem 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+      #acilis .a-logo { animation: acYazi 1s ease-out both; }
+      #acilis .a-bar i { animation: acCizgi 1.1s ease-in-out infinite; }
+      #acilis.bitti { opacity: 0; pointer-events: none; }
+      @media (prefers-reduced-motion: reduce) { #acilis * { animation: none !important; opacity: 1 !important; transform: none !important; } #acilis { transition: none; } #acilis .a-bar { display: none; } }
+    </style>
     <script type="module" crossorigin src="./app.js"></script>
     <link rel="stylesheet" crossorigin href="./app.css">
   </head>
   <body>
+    <div id="acilis" aria-hidden="true">
+      <span class="a-amblem"><img class="a-acik" src="./amblem-renkli.png" alt="" /><img class="a-koyu" src="./amblem-beyaz.png" alt="" /></span>
+      <span class="a-logo"><img class="a-acik a-logo" src="./logo-renkli.png" alt="Ceyto Yapı" /><img class="a-koyu a-logo" src="./logo-beyaz.png" alt="" /></span>
+      <div class="a-bar"><i></i></div>
+      <div class="a-txt">Panel hazırlanıyor…</div>
+    </div>
     <div id="root"></div>
+    <script>
+      // Açılış ekranı: uygulama çizildiğinde (en geç 4 sn) yumuşakça kalkar
+      (function () {
+        var a = document.getElementById("acilis"), done = false;
+        function kapat() { if (done || !a) return; done = true; a.classList.add("bitti"); setTimeout(function () { a.remove(); }, 400); }
+        window.__acilisKapat = kapat;
+        setTimeout(kapat, 4000);
+      })();
+    </script>
   </body>
 </html>
