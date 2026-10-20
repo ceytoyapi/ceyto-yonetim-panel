@@ -1,6 +1,6 @@
 // Ceyto Panel — hafif servis çalışanı. Sadece uygulama kabuğunu önbelleğe alır;
 // veri istekleri (Supabase) her zaman ağdan gider.
-const CACHE = "ceyto-shell-v9";
+const CACHE = "ceyto-shell-v10";
 self.addEventListener("install", (e) => { self.skipWaiting(); });
 self.addEventListener("activate", (e) => {
   e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))));
@@ -28,8 +28,8 @@ self.addEventListener("push", (e) => {
   const title = data.title || "Ceyto Panel";
   const opts = {
     body: data.body || "",
-    icon: new URL("icon-192.png", self.registration.scope).href,
-    badge: new URL("icon-192.png", self.registration.scope).href,
+    icon: new URL("icon-v4-192.png", self.registration.scope).href,
+    badge: new URL("icon-v4-192.png", self.registration.scope).href,
     tag: data.tag || undefined,
     renotify: !!data.tag,
     data: { url: data.url || "#/" },
