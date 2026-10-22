@@ -1,6 +1,6 @@
 // Ceyto Panel — hafif servis çalışanı. Sadece uygulama kabuğunu önbelleğe alır;
 // veri istekleri (Supabase) her zaman ağdan gider.
-const CACHE = "ceyto-shell-v10";
+const CACHE = "ceyto-shell-v11";
 self.addEventListener("install", (e) => { self.skipWaiting(); });
 self.addEventListener("activate", (e) => {
   e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))));
@@ -26,16 +26,27 @@ self.addEventListener("push", (e) => {
   let data = {};
   try { data = e.data ? e.data.json() : {}; } catch { data = { title: "Ceyto Panel", body: e.data ? e.data.text() : "" }; }
   const title = data.title || "Ceyto Panel";
+  const acil = !!data.acil;
   const opts = {
     body: data.body || "",
     icon: new URL("icon-v4-192.png", self.registration.scope).href,
     badge: new URL("icon-v4-192.png", self.registration.scope).href,
     tag: data.tag || undefined,
-    renotify: !!data.tag,
-    data: { url: data.url || "#/" },
-    vibrate: [80, 40, 80],
+    renotify: !!data.tag,                                   // aynı iş yeniden gelirse (tekrar) tekrar uyarsın
+    requireInteraction: !!data.requireInteraction,          // acil / tekrar: kullanıcı kapatana kadar dursun
+    silent: false,
+    timestamp: Date.now(),
+    data: { url: data.url || "#/", tip: data.tip || "" },
+    vibrate: Array.isArray(data.vibrate) && data.vibrate.length ? data.vibrate : acil ? [300, 120, 300, 120, 300, 120, 700] : [80, 40, 80],
   };
-  e.waitUntil(self.registration.showNotification(title, opts));
+  if (data.tip === "yeni" || data.tip === "tekrar") opts.actions = [{ action: "ac", title: "Aç" }];
+  e.waitUntil((async () => {
+    await self.registration.showNotification(title, opts);
+    // "üstlendi" / "tamamlandı" bilgisi: 8 sn sonra kendiliğinden kapansın
+    if (data.tip === "ustlenildi" || data.tip === "kapatildi") setTimeout(async () => { for (const n of await self.registration.getNotifications({ tag: data.tag })) if (n.data?.tip === data.tip) n.close(); }, 8000);
+    // Açık panel sekmelerine haber ver (alarm şeridi anında güncellensin)
+    for (const c of await self.clients.matchAll({ type: "window", includeUncontrolled: true })) c.postMessage({ tip: "push", veri: data });
+  })());
 });
 self.addEventListener("notificationclick", (e) => {
   e.notification.close();
